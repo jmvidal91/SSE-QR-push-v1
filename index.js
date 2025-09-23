@@ -24,7 +24,7 @@ app.get('/events', (req, res) => {
     'Cache-Control': 'no-store',
     'Connection': 'keep-alive',
     'Access-Control-Allow-Origin': ALLOWED_ORIGIN === "*" ? "*" : ALLOWED_ORIGIN,
-    'X-Accel-Buffering': 'no' // evita buffering en algunos proxies
+    'X-Accel-Buffering': 'no' // evita buffering en proxies
   });
   res.write(': connected\n\n');
 
@@ -46,9 +46,9 @@ app.get('/events', (req, res) => {
 
 /**
  * Endpoint para push desde n8n
- * Ahora soporta:
+ * Soporta:
  * - { cajero, qr_url } -> evento "qr"
- * - { cajero, pendientes, listos } -> evento "monitor"
+ * - { cajero, type: "monitor_update" } -> evento "monitor" (trigger)
  */
 app.post('/notify', (req, res) => {
   if (AUTH_TOKEN) {
@@ -67,12 +67,9 @@ app.post('/notify', (req, res) => {
     // Caso QR
     payload = { qr_url: req.body.qr_url.toString() };
     eventName = "qr";
-  } else if (req.body.pendientes || req.body.listos) {
-    // Caso Monitor
-    payload = {
-      pendientes: req.body.pendientes || [],
-      listos: req.body.listos || []
-    };
+  } else if (req.body.type === "monitor_update") {
+    // Caso monitor (trigger)
+    payload = { type: "monitor_update" };
     eventName = "monitor";
   } else {
     return res.status(400).json({ ok: false, error: 'invalid payload' });
@@ -111,4 +108,3 @@ app.get('/healthz', (_req, res) => res.json({ ok: true }));
 app.listen(PORT, () => {
   console.log(`SSE server listening on :${PORT}`);
 });
-
