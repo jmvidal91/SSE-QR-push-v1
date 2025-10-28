@@ -47,7 +47,7 @@ app.get('/events', (req, res) => {
 /**
  * Endpoint para push desde n8n
  * Soporta:
- * - { cajero, qr_url } -> evento "qr"
+ * - { cajero, qr_url, n_pedido } -> evento "qr"
  * - { cajero, type: "monitor_update" } -> evento "monitor" (trigger)
  */
 app.post('/notify', (req, res) => {
@@ -65,7 +65,10 @@ app.post('/notify', (req, res) => {
 
   if (req.body.qr_url) {
     // Caso QR
-    payload = { qr_url: req.body.qr_url.toString() };
+    payload = {
+      qr_url: req.body.qr_url.toString(),
+      ...(req.body.n_pedido ? { n_pedido: req.body.n_pedido.toString() } : {})
+    };
     eventName = "qr";
   } else if (req.body.type === "monitor_update") {
     // Caso monitor (trigger)
