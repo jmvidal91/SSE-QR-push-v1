@@ -47,7 +47,7 @@ app.get('/events', (req, res) => {
 /**
  * Endpoint para push desde n8n
  * Soporta:
- * - { cajero, qr_url, n_pedido, fecha_hora } -> evento "qr"
+ * - { cajero, qr_url, n_pedido } -> evento "qr"
  * - { cajero, type: "monitor_update" } -> evento "monitor" (trigger)
  */
 app.post('/notify', (req, res) => {
@@ -67,8 +67,7 @@ app.post('/notify', (req, res) => {
     // Caso QR
     payload = {
       qr_url: req.body.qr_url.toString(),
-      ...(req.body.n_pedido ? { n_pedido: req.body.n_pedido.toString() } : {}),
-      ...(req.body.fecha_hora ? { fecha_hora: req.body.fecha_hora.toString() } : {})
+      ...(req.body.n_pedido ? { n_pedido: req.body.n_pedido.toString() } : {})
     };
     eventName = "qr";
   } else if (req.body.type === "monitor_update") {
@@ -112,4 +111,5 @@ app.get('/healthz', (_req, res) => res.json({ ok: true }));
 app.listen(PORT, () => {
   console.log(`SSE server listening on :${PORT}`);
 });
+
 
